@@ -28,8 +28,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private VideoView mVideoView;
     private MediaController mMediaController;
-    //        private String mVideoUrl = "https://s3-ap-northeast-1.amazonaws.com/mid-exam/Video/taeyeon.mp4";
-    private String mVideoUrl = "https://s3-ap-northeast-1.amazonaws.com/mid-exam/Video/protraitVideo.mp4";
+    private String mVideoUrl = "https://s3-ap-northeast-1.amazonaws.com/mid-exam/Video/taeyeon.mp4";
+//        private String mVideoUrl = "https://s3-ap-northeast-1.amazonaws.com/mid-exam/Video/protraitVideo.mp4";
     private SeekBar mSeekBar;
     private TextView mTotalTime;
     private TextView mCurrentTime;
@@ -111,6 +111,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                     }
                 }.start();
+                Log.d("HEIGHT!!!!!  ", "onCreate: " + mVideoView.getHeight());
+                Log.d("WIDTH!!!!!  ", "onCreate: " + mVideoView.getWidth());
+                if (mVideoView.getHeight() >= mVideoView.getWidth()) {
+                    float factor = getResources().getDisplayMetrics().density;
+
+                    mVideoView.setLayoutParams(new RelativeLayout.LayoutParams(Math.round(200 * factor), ViewGroup.LayoutParams.WRAP_CONTENT));
+                } else {
+                    mVideoView.setLayoutParams(new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+                }
             }
         });
         mVideoView.start();
@@ -122,14 +131,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 //            setControllerVisibility(false);
 //            mVideoView.setLayoutParams(new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.MATCH_PARENT));
 //        } else {
-
-        if (mVideoView.getHeight() >= mVideoView.getWidth()) {
-            float factor = getResources().getDisplayMetrics().density;
-
-            mVideoView.setLayoutParams(new RelativeLayout.LayoutParams(Math.round(200 * factor), ViewGroup.LayoutParams.WRAP_CONTENT));
-        } else {
-            mVideoView.setLayoutParams(new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-        }
 
 
 //        }
