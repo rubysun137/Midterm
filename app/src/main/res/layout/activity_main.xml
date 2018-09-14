@@ -7,28 +7,33 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-    <FrameLayout
-        android:id="@+id/frameLayout"
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@android:color/black"
+        android:gravity="center"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
-        <VideoView
-            android:id="@+id/videoViewPortrait"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center" />
-    </FrameLayout>
+        <RelativeLayout
+            android:id="@+id/relativeLayoutHolder"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+            <VideoView
+                android:id="@+id/videoViewPortrait"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+        </RelativeLayout>
+    </RelativeLayout>
 
     <android.support.constraint.ConstraintLayout
         android:id="@+id/controllerHolder"
         android:layout_width="match_parent"
         android:layout_height="60dp"
-        android:background="#b2ffffff"
+        android:background="#ffffff"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
@@ -38,7 +43,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="4dp"
             android:text="00:00"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
@@ -48,7 +53,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="8dp"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="4dp"
             android:text="00:00"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
@@ -59,7 +64,7 @@
             android:layout_height="wrap_content"
             android:layout_marginEnd="8dp"
             android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="4dp"
             app:layout_constraintEnd_toStartOf="@+id/totalTimeTextView"
             app:layout_constraintStart_toEndOf="@+id/currentTimeTextView"
             app:layout_constraintTop_toTopOf="parent" />
@@ -140,7 +145,7 @@
             android:visibility="invisible"
             app:layout_constraintBottom_toBottomOf="@+id/forwardImageView"
             app:layout_constraintStart_toEndOf="@+id/forwardImageView"
-            app:srcCompat="@drawable/ic_fullscreen_black_24dp" />
+            app:srcCompat="@drawable/ic_fullscreen_exit_black_24dp" />
 
     </android.support.constraint.ConstraintLayout>
 

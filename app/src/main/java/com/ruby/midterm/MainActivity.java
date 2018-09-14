@@ -1,20 +1,20 @@
 package com.ruby.midterm;
 
 import android.content.Context;
+import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
-import android.os.Handler;
-import android.os.Message;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.widget.ImageView;
 import android.widget.MediaController;
+import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.VideoView;
@@ -28,8 +28,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private VideoView mVideoView;
     private MediaController mMediaController;
-    private String mVideoUrl = "https://s3-ap-northeast-1.amazonaws.com/mid-exam/Video/taeyeon.mp4";
-    //    private String mVideoUrl = "https://s3-ap-northeast-1.amazonaws.com/mid-exam/Video/protraitVideo.mp4";
+    //        private String mVideoUrl = "https://s3-ap-northeast-1.amazonaws.com/mid-exam/Video/taeyeon.mp4";
+    private String mVideoUrl = "https://s3-ap-northeast-1.amazonaws.com/mid-exam/Video/protraitVideo.mp4";
     private SeekBar mSeekBar;
     private TextView mTotalTime;
     private TextView mCurrentTime;
@@ -38,17 +38,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private AudioManager mAudioManager;
     private boolean mIsPlaying;
     private int mStreamVolume;
-    private View mPlaceHolder, mControllerHolder;
+    private View mPlaceHolder;
+    private View mControllerHolder;
     private Timer mTimer;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-//        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
-//        getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
         setContentView(R.layout.activity_main);
+
 
         mAudioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
 
@@ -58,6 +60,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mCurrentTime = findViewById(R.id.currentTimeTextView);
         mPlaceHolder = findViewById(R.id.allPlaceHolder);
         mControllerHolder = findViewById(R.id.controllerHolder);
+
 
         findViewById(R.id.playImageView).setOnClickListener(this);
         findViewById(R.id.pauseImageView).setOnClickListener(this);
@@ -112,6 +115,25 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         });
         mVideoView.start();
 
+//        int orientation = getResources().getConfiguration().orientation;
+//        if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
+//            getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+//            mPlaceHolder.setOnTouchListener(touch);
+//            setControllerVisibility(false);
+//            mVideoView.setLayoutParams(new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.MATCH_PARENT));
+//        } else {
+
+        if (mVideoView.getHeight() >= mVideoView.getWidth()) {
+            float factor = getResources().getDisplayMetrics().density;
+
+            mVideoView.setLayoutParams(new RelativeLayout.LayoutParams(Math.round(200 * factor), ViewGroup.LayoutParams.WRAP_CONTENT));
+        } else {
+            mVideoView.setLayoutParams(new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        }
+
+
+//        }
+
         mSeekBar.setOnSeekBarChangeListener(change);
 
 
@@ -121,12 +143,23 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
         if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT) {
+            if (mTimer != null) {
+                mTimer.cancel();
+            }
+            if (mVideoView.getHeight() >= mVideoView.getWidth()) {
+                float factor = getResources().getDisplayMetrics().density;
+
+                mVideoView.setLayoutParams(new RelativeLayout.LayoutParams(Math.round(200 * factor), ViewGroup.LayoutParams.WRAP_CONTENT));
+            } else {
+
+                mVideoView.setLayoutParams(new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+            }
             getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
             mPlaceHolder.setOnTouchListener(null);
             setControllerVisibility(true);
 
         } else if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
-            getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
+            mVideoView.setLayoutParams(new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.MATCH_PARENT));
             getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
             mPlaceHolder.setOnTouchListener(touch);
             setControllerVisibility(false);
@@ -166,8 +199,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 findViewById(R.id.unmuteImageView).setVisibility(View.INVISIBLE);
                 break;
             case R.id.fullscreenImageView:
+                setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+                findViewById(R.id.exitFullscreenImageView).setVisibility(View.VISIBLE);
+                findViewById(R.id.fullscreenImageView).setVisibility(View.INVISIBLE);
                 break;
             case R.id.exitFullscreenImageView:
+                setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+                findViewById(R.id.fullscreenImageView).setVisibility(View.VISIBLE);
+                findViewById(R.id.exitFullscreenImageView).setVisibility(View.INVISIBLE);
+                if (mTimer != null) {
+                    mTimer.cancel();
+                }
+                break;
+            default:
                 break;
         }
 
@@ -177,25 +221,32 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         @Override
         public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
             mCurrentTime.setText(formatTime(progress));
+
         }
 
         @Override
         public void onStartTrackingTouch(SeekBar seekBar) {
-
+            if (mTimer != null) {
+                mTimer.cancel();
+            }
         }
 
         @Override
         public void onStopTrackingTouch(SeekBar seekBar) {
             mVideoView.seekTo(seekBar.getProgress());
+            int orientation = getResources().getConfiguration().orientation;
+            if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
+                setTimer();
+            }
         }
     };
 
 
-    private String formatTime(int mSec) {
+    private String formatTime(int miliSecond) {
         return String.format("%02d:%02d",
-                TimeUnit.MILLISECONDS.toMinutes(mSec),
-                TimeUnit.MILLISECONDS.toSeconds(mSec) -
-                        TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(mSec)));
+                TimeUnit.MILLISECONDS.toMinutes(miliSecond),
+                TimeUnit.MILLISECONDS.toSeconds(miliSecond)
+                        - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(miliSecond)));
     }
 
     private View.OnTouchListener touch = new View.OnTouchListener() {
@@ -206,24 +257,27 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
 
             setControllerVisibility(true);
-            boolean isNotTouch = true;
-            mTimer = new Timer();
-            TimerTask task = new TimerTask() {
-                @Override
-                public void run() {
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            setControllerVisibility(false);
-                        }
-                    });
-                }
-            };
+            setTimer();
 
-            mTimer.schedule(task, 3000);
             return true;
         }
     };
+
+    private void setTimer() {
+        mTimer = new Timer();
+        TimerTask task = new TimerTask() {
+            @Override
+            public void run() {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        setControllerVisibility(false);
+                    }
+                });
+            }
+        };
+        mTimer.schedule(task, 3000);
+    }
 
     private void setControllerVisibility(boolean visibility) {
         if (visibility) {
