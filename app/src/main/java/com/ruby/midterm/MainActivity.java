@@ -14,6 +14,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.MediaController;
+import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -28,8 +29,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private VideoView mVideoView;
     private MediaController mMediaController;
-    private String mVideoUrl = "https://s3-ap-northeast-1.amazonaws.com/mid-exam/Video/taeyeon.mp4";
-//        private String mVideoUrl = "https://s3-ap-northeast-1.amazonaws.com/mid-exam/Video/protraitVideo.mp4";
+    //    private String mVideoUrl = "https://s3-ap-northeast-1.amazonaws.com/mid-exam/Video/taeyeon.mp4";
+    private String mVideoUrl = "https://s3-ap-northeast-1.amazonaws.com/mid-exam/Video/protraitVideo.mp4";
     private SeekBar mSeekBar;
     private TextView mTotalTime;
     private TextView mCurrentTime;
@@ -47,7 +48,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
-        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+//        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
         setContentView(R.layout.activity_main);
 
@@ -77,7 +78,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mVideoView.setVideoURI(videoUri);
 
 //        mMediaController = new CustomMediaController(this);
+//        mMediaController.setMediaPlayer(mVideoView);
 //        mVideoView.setMediaController(mMediaController);
+
 
         mVideoView.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
             @Override
@@ -99,6 +102,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                     mCurrentPosition = mVideoView.getCurrentPosition();
                                     mCurrentTime.setText(formatTime(mCurrentPosition));
                                     mSeekBar.setProgress(mCurrentPosition);
+                                    mSeekBar.setSecondaryProgress(mVideoView.getBufferPercentage() * (mVideoLength / 100));
+                                    Log.d("TRY ", "run: " + mVideoView.getBufferPercentage());
                                 }
                             });
 
@@ -124,18 +129,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         });
         mVideoView.start();
 
-//        int orientation = getResources().getConfiguration().orientation;
-//        if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
-//            getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        int orientation = getResources().getConfiguration().orientation;
+        if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
 //            mPlaceHolder.setOnTouchListener(touch);
 //            setControllerVisibility(false);
 //            mVideoView.setLayoutParams(new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.MATCH_PARENT));
-//        } else {
+        } else {
 
-
-//        }
+            getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        }
 
         mSeekBar.setOnSeekBarChangeListener(change);
+//        mVideoView.setOnInfoListener(playStateListener);
 
 
     }
@@ -172,13 +178,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         switch (v.getId()) {
             case R.id.playImageView:
                 mVideoView.start();
-                mIsPlaying = true;
                 findViewById(R.id.playImageView).setVisibility(View.INVISIBLE);
                 findViewById(R.id.pauseImageView).setVisibility(View.VISIBLE);
                 break;
             case R.id.pauseImageView:
                 mVideoView.pause();
-                mIsPlaying = false;
                 findViewById(R.id.playImageView).setVisibility(View.VISIBLE);
                 findViewById(R.id.pauseImageView).setVisibility(View.INVISIBLE);
                 break;
@@ -205,7 +209,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 findViewById(R.id.fullscreenImageView).setVisibility(View.INVISIBLE);
                 break;
             case R.id.exitFullscreenImageView:
-                setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+                setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
                 findViewById(R.id.fullscreenImageView).setVisibility(View.VISIBLE);
                 findViewById(R.id.exitFullscreenImageView).setVisibility(View.INVISIBLE);
                 if (mTimer != null) {
