@@ -132,9 +132,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         int orientation = getResources().getConfiguration().orientation;
         if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
             getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
-//            mPlaceHolder.setOnTouchListener(touch);
-//            setControllerVisibility(false);
-//            mVideoView.setLayoutParams(new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.MATCH_PARENT));
+            mPlaceHolder.setOnTouchListener(touch);
+            setControllerVisibility(false);
+            mVideoView.setLayoutParams(new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.MATCH_PARENT));
         } else {
 
             getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
